@@ -8,9 +8,9 @@
     - insert element (any markdown element)
         - if table then ask dimensions
         - if image then ask image location
+- color theme and other settings should be customizable via a json file
 
 - pressing enter after a list line item, it should create a new empty list item. if we press  enter on an empty line item, the empty line item is removed and we are left with and empty line, or the nested upper line item by removing tabs. (is this a tall order?)
-- color theme and other settings should be customizable via a json file
 
 - app icon and branding
 - toolbar for markdown or text file formatting

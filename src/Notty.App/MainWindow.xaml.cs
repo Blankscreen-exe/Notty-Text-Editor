@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using ICSharpCode.AvalonEdit.CodeCompletion;
 using Notty.App.Editor;
 using Notty.App.ViewModels;
 
@@ -15,6 +16,7 @@ public partial class MainWindow : Window
     private readonly MarkdownColorizer _markdownColorizer;
     private readonly AlertBackgroundRenderer _alertRenderer = new();
     private readonly CodeBlockBackgroundRenderer _codeRenderer = new();
+    private CompletionWindow? _completionWindow;
 
     // Guards the two-way bridge between AvalonEdit and EditorViewModel.Text
     // so a programmatic load does not get echoed back as a user edit.
@@ -26,6 +28,45 @@ public partial class MainWindow : Window
         _markdownColorizer = new MarkdownColorizer(Editor);
         DataContextChanged += OnDataContextChanged;
         Editor.TextChanged += OnEditorTextChanged;
+        Editor.TextArea.TextEntered += OnEditorTextEntered;
+    }
+
+    // Pop the "/" command menu when a slash is typed at the start of a token.
+    private void OnEditorTextEntered(object sender, System.Windows.Input.TextCompositionEventArgs e)
+    {
+        if (_vm is null || _completionWindow is not null || e.Text != "/")
+            return;
+
+        var path = _vm.Editor.CurrentFilePath;
+        if (path is null)
+            return;
+
+        // Only trigger at a line start or after whitespace, so slashes in paths/URLs are left alone.
+        var caret = Editor.CaretOffset;
+        var slash = caret - 1;
+        if (slash > 0 && !char.IsWhiteSpace(Editor.Document.GetCharAt(slash - 1)))
+            return;
+
+        // Don't pop inside a fenced code block — slashes are normal code there.
+        if (IsMarkdownFile(path) &&
+            MarkdownFences.IsInCodeBlock(Editor.Document, Editor.Document.GetLineByOffset(caret)))
+            return;
+
+        ShowSlashCompletion(path);
+    }
+
+    private void ShowSlashCompletion(string path)
+    {
+        var commands = SlashCommands.For(path);
+        if (commands.Count == 0)
+            return;
+
+        _completionWindow = new CompletionWindow(Editor.TextArea);
+        foreach (var command in commands)
+            _completionWindow.CompletionList.CompletionData.Add(new SlashCommandCompletionData(command));
+
+        _completionWindow.Closed += (_, _) => _completionWindow = null;
+        _completionWindow.Show();
     }
 
     private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
