@@ -18,8 +18,10 @@ public readonly record struct AlertBlock(AlertKind Kind, bool IsHeader, bool IsF
 /// </summary>
 public static class MarkdownAlerts
 {
+    // GitHub strictly wants the [!TYPE] marker alone on the first line, but we also accept content on
+    // the same line (> [!NOTE] text) since that is what people naturally type.
     private static readonly Regex HeaderPattern =
-        new(@"^\s{0,3}>\s?\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\s*$",
+        new(@"^\s{0,3}>\s?\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]",
             RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
     private static readonly Dictionary<AlertKind, (SolidColorBrush Accent, SolidColorBrush Tint)> BrushCache = new();

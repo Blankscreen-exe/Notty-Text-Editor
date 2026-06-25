@@ -70,19 +70,19 @@ public sealed class MarkdownColorizer : DocumentColorizingTransformer
 
             if (alert.IsHeader)
             {
+                // Colour just the [!TYPE] marker; anything after it on the same line is body text.
                 var label = MarkdownAlerts.Brushes(alert.Kind).Accent;
-                var bracket = text.IndexOf('[');
-                if (bracket >= 0)
-                    ChangeLinePart(start + bracket, line.EndOffset, e =>
+                var open = text.IndexOf('[');
+                var close = text.IndexOf(']');
+                if (open >= 0 && close > open)
+                    ChangeLinePart(start + open, start + close + 1, e =>
                     {
                         ApplyWeight(e, FontWeights.Bold);
                         e.TextRunProperties.SetForegroundBrush(label);
                     });
             }
-            else
-            {
-                ApplyInline(text, start, muted);
-            }
+
+            ApplyInline(text, start, muted);
             return;
         }
 

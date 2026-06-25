@@ -14,6 +14,7 @@
 - ctrl + S shortcut for saving.
 - auto saving as an optional feature in settings
 - double click folder on sidebar to toggle expand them
+- hitting down button while in middle of a text line should move the cursor to end of the line (if there is no more lines after that) this is quite common in text editors.
 
 ## Navigation & search (biggest gap right now)
 - Global search across all notes — search content in every file in the workspace, not just the open one. With match preview snippets.
