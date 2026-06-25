@@ -34,14 +34,44 @@ public partial class MainWindow : Window
         Editor.PreviewKeyDown += OnEditorPreviewKeyDown;
     }
 
-    // Smart list editing for markdown: Enter continues/exits a list, Tab/Shift+Tab indent it.
-    // Skipped while the slash popup is open so Enter/Tab there commit the selected command.
+    // Editor key behaviors. Skipped entirely while the slash popup is open so it owns the keys
+    // (Up/Down to move through commands, Enter/Tab to commit).
     private void OnEditorPreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
     {
-        if (_completionWindow is not null || _vm is null || !IsMarkdownFile(_vm.Editor.CurrentFilePath))
+        if (_vm is null || _completionWindow is not null)
             return;
 
         var mods = e.KeyboardDevice.Modifiers;
+
+        // Down on the last line jumps to end-of-line, Up on the first line jumps to start-of-line,
+        // instead of doing nothing (common text-editor behavior). Applies to every file type.
+        if (e.Key == System.Windows.Input.Key.Down && mods == System.Windows.Input.ModifierKeys.None)
+        {
+            var caretLine = Editor.Document.GetLineByOffset(Editor.CaretOffset);
+            if (caretLine.NextLine is null && Editor.CaretOffset != caretLine.EndOffset)
+            {
+                Editor.CaretOffset = caretLine.EndOffset;
+                e.Handled = true;
+            }
+
+            return;
+        }
+
+        if (e.Key == System.Windows.Input.Key.Up && mods == System.Windows.Input.ModifierKeys.None)
+        {
+            var caretLine = Editor.Document.GetLineByOffset(Editor.CaretOffset);
+            if (caretLine.PreviousLine is null && Editor.CaretOffset != caretLine.Offset)
+            {
+                Editor.CaretOffset = caretLine.Offset;
+                e.Handled = true;
+            }
+
+            return;
+        }
+
+        // Smart list editing — markdown only: Enter continues/exits a list, Tab/Shift+Tab indent it.
+        if (!IsMarkdownFile(_vm.Editor.CurrentFilePath))
+            return;
 
         if (e.Key == System.Windows.Input.Key.Enter && mods == System.Windows.Input.ModifierKeys.None)
         {
