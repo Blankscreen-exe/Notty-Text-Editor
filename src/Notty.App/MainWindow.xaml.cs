@@ -29,6 +29,29 @@ public partial class MainWindow : Window
         DataContextChanged += OnDataContextChanged;
         Editor.TextChanged += OnEditorTextChanged;
         Editor.TextArea.TextEntered += OnEditorTextEntered;
+        Editor.PreviewKeyDown += OnEditorPreviewKeyDown;
+    }
+
+    // Smart list editing for markdown: Enter continues/exits a list, Tab/Shift+Tab indent it.
+    // Skipped while the slash popup is open so Enter/Tab there commit the selected command.
+    private void OnEditorPreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+    {
+        if (_completionWindow is not null || _vm is null || !IsMarkdownFile(_vm.Editor.CurrentFilePath))
+            return;
+
+        var mods = e.KeyboardDevice.Modifiers;
+
+        if (e.Key == System.Windows.Input.Key.Enter && mods == System.Windows.Input.ModifierKeys.None)
+        {
+            if (ListContinuation.HandleEnter(Editor))
+                e.Handled = true;
+        }
+        else if (e.Key == System.Windows.Input.Key.Tab &&
+                 (mods == System.Windows.Input.ModifierKeys.None || mods == System.Windows.Input.ModifierKeys.Shift))
+        {
+            if (ListContinuation.HandleTab(Editor, outdent: mods == System.Windows.Input.ModifierKeys.Shift))
+                e.Handled = true;
+        }
     }
 
     // Pop the "/" command menu when a slash is typed at the start of a token.
