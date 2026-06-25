@@ -97,6 +97,14 @@ public sealed class SettingsViewModel : ObservableObject
         set => SetEditor(value, _settings.EditorHighlightCurrentLine, v => _settings.EditorHighlightCurrentLine = v);
     }
 
+    // ---- Saving ----
+
+    public bool AutoSave
+    {
+        get => _settings.AutoSave;
+        set => SetEditor(value, _settings.AutoSave, v => _settings.AutoSave = v);
+    }
+
     // ---- Files ----
 
     public bool ShowUnsupportedFiles

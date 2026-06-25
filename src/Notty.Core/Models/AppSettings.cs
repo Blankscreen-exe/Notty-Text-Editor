@@ -26,6 +26,9 @@ public sealed class AppSettings
     /// <summary>When true, markdown files render inline formatting in the editor (still editable).</summary>
     public bool MarkdownPreview { get; set; }
 
+    /// <summary>When true, edits are written automatically shortly after typing stops. When false, save is manual (Ctrl+S).</summary>
+    public bool AutoSave { get; set; } = true;
+
     /// <summary>Most-recently-opened documents, newest first. Capped to <see cref="MaxRecentDocuments"/>.</summary>
     public List<RecentDocument> RecentDocuments { get; set; } = new();
 

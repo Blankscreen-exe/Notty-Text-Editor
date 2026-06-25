@@ -445,6 +445,7 @@ public sealed class MainViewModel : ObservableObject
         EditorTabWidth = _settings.EditorTabWidth;
         EditorHighlightCurrentLine = _settings.EditorHighlightCurrentLine;
         MarkdownPreviewEnabled = _settings.MarkdownPreview;
+        Editor.AutoSave = _settings.AutoSave;
     }
 
     private void ApplyEditorSettings()
@@ -621,8 +622,11 @@ public sealed class MainViewModel : ObservableObject
         }
     }
 
-    private void OnDocumentSaved(string path) =>
-        StatusText = $"Saved {Path.GetFileName(path)} ✓";
+    // Save state is surfaced by the status-bar indicator (Editor.SaveStatusText), so this just keeps
+    // the recent-documents list fresh without clobbering the main status message.
+    private void OnDocumentSaved(string path)
+    {
+    }
 
     /// <summary>Flushes any pending autosave. Call on application shutdown.</summary>
     public void FlushPendingSaves() => Editor.SaveNow();

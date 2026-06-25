@@ -118,10 +118,24 @@
                 <Grid>
                     <TextBlock Text="{Binding StatusText}" Foreground="{DynamicResource MutedTextBrush}"
                                VerticalAlignment="Center" />
-                    <ToggleButton Content="Preview" Style="{StaticResource StatusToggle}"
-                                  HorizontalAlignment="Right" VerticalAlignment="Center"
-                                  IsChecked="{Binding MarkdownPreviewEnabled, Mode=TwoWay}"
-                                  ToolTip="Render markdown formatting inline (.md files, still editable)" />
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding Editor.SaveStatusText}" VerticalAlignment="Center" Margin="0,0,12,0"
+                                   Visibility="{Binding Editor.HasDocument, Converter={StaticResource BoolToVis}}">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground" Value="{DynamicResource MutedTextBrush}" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Editor.HasUnsavedChanges}" Value="True">
+                                            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                        <ToggleButton Content="Preview" Style="{StaticResource StatusToggle}"
+                                      IsChecked="{Binding MarkdownPreviewEnabled, Mode=TwoWay}"
+                                      ToolTip="Render markdown formatting inline (.md files, still editable)" />
+                    </StackPanel>
                 </Grid>
             </Border>
 

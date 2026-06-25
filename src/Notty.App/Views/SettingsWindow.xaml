@@ -93,7 +93,11 @@
             <!-- ===== Files ===== -->
             <TabItem Header="Files">
                 <StackPanel Margin="16">
-                    <TextBlock Text="Tree" Style="{StaticResource SectionHeader}" />
+                    <TextBlock Text="Saving" Style="{StaticResource SectionHeader}" />
+                    <CheckBox Content="Auto-save changes (otherwise save with Ctrl+S)"
+                              IsChecked="{Binding AutoSave, Mode=TwoWay}" />
+
+                    <TextBlock Text="Tree" Style="{StaticResource SectionHeader}" Margin="0,16,0,4" />
                     <CheckBox Content="Show unsupported file types (with a ? icon)"
                               IsChecked="{Binding ShowUnsupportedFiles, Mode=TwoWay}" />
                 </StackPanel>
