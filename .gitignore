@@ -1,0 +1,14 @@
+# Build output
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+*.user
+
+# Rider / VS
+.vs/
+.idea/
+*.suo
+
+# Local sample data (not part of the app)
+SampleNotes/

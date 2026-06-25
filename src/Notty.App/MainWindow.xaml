@@ -1,0 +1,236 @@
+<Window x:Class="Notty.App.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:avalon="http://icsharpcode.net/sharpdevelop/avalonedit"
+        xmlns:conv="clr-namespace:Notty.App.Converters"
+        xmlns:mvvm="clr-namespace:Notty.App.Mvvm"
+        xmlns:svg="clr-namespace:SharpVectors.Converters;assembly=SharpVectors.Converters.Wpf"
+        xmlns:vm="clr-namespace:Notty.App.ViewModels"
+        Title="Notty" Height="720" Width="1080"
+        Background="{DynamicResource WindowBackgroundBrush}"
+        FontFamily="Segoe UI" FontSize="13">
+
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+        <conv:InverseBooleanToVisibilityConverter x:Key="InvBoolToVis" />
+        <!-- Carries the MainViewModel into the context menu (which lives outside the visual tree). -->
+        <mvvm:BindingProxy x:Key="Proxy" Data="{Binding}" />
+    </Window.Resources>
+
+    <Window.InputBindings>
+        <KeyBinding Modifiers="Ctrl" Key="N" Command="{Binding NewMarkdownDocumentCommand}" />
+        <KeyBinding Modifiers="Ctrl+Shift" Key="N" Command="{Binding NewCategoryCommand}" />
+        <KeyBinding Modifiers="Ctrl" Key="S" Command="{Binding SaveCommand}" />
+    </Window.InputBindings>
+
+    <Grid>
+        <!-- ===================== Welcome screen ===================== -->
+        <Grid Visibility="{Binding HasWorkspace, Converter={StaticResource InvBoolToVis}}"
+              Background="{DynamicResource PanelBackgroundBrush}">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="380">
+                <TextBlock Text="Notty" FontSize="34" FontWeight="Bold"
+                           Foreground="{DynamicResource TextBrush}" HorizontalAlignment="Center" />
+                <TextBlock Text="File-based notes. Your folders are the database."
+                           Foreground="{DynamicResource MutedTextBrush}"
+                           HorizontalAlignment="Center" Margin="0,6,0,28" />
+                <Button Content="Open Existing Workspace" Style="{StaticResource PrimaryButton}"
+                        Command="{Binding OpenWorkspaceCommand}" Margin="0,0,0,10" />
+                <Button Content="Create New Workspace" Style="{StaticResource ToolbarButton}"
+                        HorizontalContentAlignment="Center" Padding="16,8"
+                        Command="{Binding CreateWorkspaceCommand}" />
+            </StackPanel>
+        </Grid>
+
+        <!-- ===================== Workspace view ===================== -->
+        <DockPanel Visibility="{Binding HasWorkspace, Converter={StaticResource BoolToVis}}">
+
+            <!-- Menu bar -->
+            <Menu DockPanel.Dock="Top" Background="{DynamicResource PanelBackgroundBrush}" Padding="4,2">
+                <Menu.Resources>
+                    <!--
+                        Top-level headers sit on the themed bar, so they follow the theme text color.
+                        Dropdown items sit on the system popup, so they use the system menu text color
+                        (correct in any OS light/dark mode). The explicit base setter stops dropdown items
+                        from inheriting the bar's (possibly light) color.
+                    -->
+                    <Style TargetType="MenuItem">
+                        <Setter Property="Foreground" Value="{x:Static SystemColors.MenuTextBrush}" />
+                        <Style.Triggers>
+                            <Trigger Property="Role" Value="TopLevelHeader">
+                                <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
+                            </Trigger>
+                            <Trigger Property="Role" Value="TopLevelItem">
+                                <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Menu.Resources>
+                <MenuItem Header="_File">
+                    <MenuItem Header="New _Markdown Document" InputGestureText="Ctrl+N"
+                              Command="{Binding NewMarkdownDocumentCommand}" />
+                    <MenuItem Header="New _Text Document"
+                              Command="{Binding NewTextDocumentCommand}" />
+                    <MenuItem Header="New _Category" InputGestureText="Ctrl+Shift+N"
+                              Command="{Binding NewCategoryCommand}" />
+                    <Separator />
+                    <MenuItem Header="_Save" InputGestureText="Ctrl+S"
+                              Command="{Binding SaveCommand}" />
+                    <Separator />
+                    <MenuItem Header="_Open Workspace…" Command="{Binding OpenWorkspaceCommand}" />
+                    <MenuItem Header="C_hange Workspace…" Command="{Binding ChangeWorkspaceCommand}" />
+                    <Separator />
+                    <MenuItem Header="E_xit" Command="{Binding ExitCommand}" />
+                </MenuItem>
+                <MenuItem Header="_Settings">
+                    <MenuItem Header="_Theme" ItemsSource="{Binding AvailableThemes}">
+                        <MenuItem.ItemContainerStyle>
+                            <Style TargetType="MenuItem">
+                                <Setter Property="Header" Value="{Binding Name}" />
+                                <Setter Property="IsChecked" Value="{Binding IsSelected, Mode=OneWay}" />
+                                <Setter Property="Command"
+                                        Value="{Binding Data.ApplyThemeCommand, Source={StaticResource Proxy}}" />
+                                <Setter Property="CommandParameter" Value="{Binding Name}" />
+                            </Style>
+                        </MenuItem.ItemContainerStyle>
+                    </MenuItem>
+                    <Separator />
+                    <MenuItem Header="_Settings…" Command="{Binding OpenSettingsCommand}" />
+                </MenuItem>
+                <MenuItem Header="_About">
+                    <MenuItem Header="_About Notty" Command="{Binding AboutCommand}" />
+                </MenuItem>
+            </Menu>
+
+            <!-- Toolbar -->
+            <Border DockPanel.Dock="Top" Background="{DynamicResource PanelBackgroundBrush}"
+                    BorderBrush="{DynamicResource BorderBrushSoft}" BorderThickness="0,0,0,1" Padding="10,8">
+                <StackPanel Orientation="Horizontal">
+                    <Button Content="Change Workspace" Style="{StaticResource ToolbarButton}"
+                            Command="{Binding ChangeWorkspaceCommand}" />
+                    <ToggleButton Content="Markdown Preview" Style="{StaticResource ToolbarToggle}"
+                                  IsChecked="{Binding MarkdownPreviewEnabled, Mode=TwoWay}"
+                                  ToolTip="Render markdown formatting inline (.md files, still editable)" />
+                    <TextBlock Text="{Binding WorkspaceName}" VerticalAlignment="Center"
+                               FontWeight="SemiBold" Foreground="{DynamicResource TextBrush}" Margin="8,0,0,0" />
+                </StackPanel>
+            </Border>
+
+            <!-- Status bar -->
+            <Border DockPanel.Dock="Bottom" Background="{DynamicResource PanelBackgroundBrush}"
+                    BorderBrush="{DynamicResource BorderBrushSoft}" BorderThickness="0,1,0,0" Padding="10,4">
+                <TextBlock Text="{Binding StatusText}" Foreground="{DynamicResource MutedTextBrush}" />
+            </Border>
+
+            <!-- Tree + editor -->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="280" MinWidth="180" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <DockPanel Grid.Column="0" Background="{DynamicResource PanelBackgroundBrush}">
+
+                    <!-- Breadcrumb: shows path from workspace to the current root; click to climb out -->
+                    <Border DockPanel.Dock="Top" Padding="8,6"
+                            BorderBrush="{DynamicResource BorderBrushSoft}" BorderThickness="0,0,0,1">
+                        <ItemsControl ItemsSource="{Binding Breadcrumbs}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel Orientation="Horizontal" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Button Content="{Binding Name}" Style="{StaticResource BreadcrumbButton}"
+                                                Command="{Binding Data.NavigateRootCommand, Source={StaticResource Proxy}}"
+                                                CommandParameter="{Binding FullPath}" />
+                                        <TextBlock Text="&#x203A;" FontSize="13"
+                                                   Foreground="{DynamicResource MutedTextBrush}"
+                                                   Margin="5,0" VerticalAlignment="Center"
+                                                   Visibility="{Binding IsCurrent, Converter={StaticResource InvBoolToVis}}" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Border>
+
+                    <TreeView x:Name="FolderTree"
+                              Background="Transparent" BorderThickness="0" Padding="6"
+                              ItemsSource="{Binding RootNodes}"
+                              SelectedItemChanged="FolderTree_SelectedItemChanged"
+                              PreviewMouseRightButtonDown="FolderTree_PreviewMouseRightButtonDown">
+                        <TreeView.ItemContainerStyle>
+                            <Style TargetType="TreeViewItem">
+                                <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+                                <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+                            </Style>
+                        </TreeView.ItemContainerStyle>
+                        <TreeView.Resources>
+                            <HierarchicalDataTemplate DataType="{x:Type vm:NodeViewModel}"
+                                                      ItemsSource="{Binding Children}">
+                                <StackPanel Orientation="Horizontal">
+                                    <StackPanel.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Header="New Markdown Document" CommandParameter="{Binding}"
+                                                      Command="{Binding Data.NewMarkdownHereCommand, Source={StaticResource Proxy}}"
+                                                      Visibility="{Binding IsDirectory, Converter={StaticResource BoolToVis}}" />
+                                            <MenuItem Header="New Text Document" CommandParameter="{Binding}"
+                                                      Command="{Binding Data.NewTextHereCommand, Source={StaticResource Proxy}}"
+                                                      Visibility="{Binding IsDirectory, Converter={StaticResource BoolToVis}}" />
+                                            <MenuItem Header="New Category" CommandParameter="{Binding}"
+                                                      Command="{Binding Data.NewCategoryHereCommand, Source={StaticResource Proxy}}"
+                                                      Visibility="{Binding IsDirectory, Converter={StaticResource BoolToVis}}" />
+                                            <Separator Visibility="{Binding IsDirectory, Converter={StaticResource BoolToVis}}" />
+                                            <MenuItem Header="Rename" CommandParameter="{Binding}"
+                                                      Command="{Binding Data.RenameCommand, Source={StaticResource Proxy}}" />
+                                            <MenuItem Header="Duplicate" CommandParameter="{Binding}"
+                                                      Command="{Binding Data.DuplicateCommand, Source={StaticResource Proxy}}"
+                                                      Visibility="{Binding IsDirectory, Converter={StaticResource InvBoolToVis}}" />
+                                            <MenuItem Header="Delete" CommandParameter="{Binding}"
+                                                      Command="{Binding Data.DeleteCommand, Source={StaticResource Proxy}}" />
+                                            <Separator />
+                                            <MenuItem Header="Reveal in File Explorer" CommandParameter="{Binding}"
+                                                      Command="{Binding Data.RevealCommand, Source={StaticResource Proxy}}" />
+                                        </ContextMenu>
+                                    </StackPanel.ContextMenu>
+
+                                    <svg:SvgViewbox Source="{Binding IconSource}" Width="16" Height="16"
+                                                    Margin="0,0,7,0" VerticalAlignment="Center" />
+
+                                    <TextBlock Text="{Binding Name}" VerticalAlignment="Center"
+                                               Foreground="{DynamicResource TextBrush}" />
+
+                                    <!-- "Door" affordance: this folder is deeper than the cap; click to enter -->
+                                    <svg:SvgViewbox Source="pack://application:,,,/Assets/Icons/ui/chevron.svg"
+                                                    Width="9" Height="9" Margin="7,0,0,0" VerticalAlignment="Center"
+                                                    Visibility="{Binding IsDoor, Converter={StaticResource BoolToVis}}" />
+                                </StackPanel>
+                            </HierarchicalDataTemplate>
+                        </TreeView.Resources>
+                    </TreeView>
+                </DockPanel>
+
+                <GridSplitter Grid.Column="1" Width="4" HorizontalAlignment="Stretch"
+                              Background="{DynamicResource BorderBrushSoft}" />
+
+                <Grid Grid.Column="2">
+                    <avalon:TextEditor x:Name="Editor"
+                                       FontFamily="{Binding EditorFontFamily}"
+                                       FontSize="{Binding EditorFontSize}"
+                                       ShowLineNumbers="{Binding EditorShowLineNumbers}"
+                                       WordWrap="{Binding EditorWordWrap}"
+                                       Background="{DynamicResource WindowBackgroundBrush}"
+                                       Foreground="{DynamicResource TextBrush}"
+                                       Visibility="{Binding Editor.HasDocument, Converter={StaticResource BoolToVis}}"
+                                       Padding="8" />
+                    <TextBlock Text="Select a note from the tree to start editing."
+                               Foreground="{DynamicResource MutedTextBrush}"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                               Visibility="{Binding Editor.HasDocument, Converter={StaticResource InvBoolToVis}}" />
+                </Grid>
+            </Grid>
+        </DockPanel>
+    </Grid>
+</Window>

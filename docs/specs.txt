@@ -1,0 +1,435 @@
+# Project Specification: File-Based Desktop Notes Manager
+
+## Project Overview
+
+Build a native Windows desktop application for managing plain text and Markdown documents organized in a folder hierarchy.
+
+The application should feel similar to CherryTree, Notion, Obsidian, or a file explorer, but with a much simpler philosophy:
+
+* Notes are stored as normal files on disk.
+* Categories are simply folders.
+* No proprietary database.
+* No cloud dependency.
+* No account system.
+* No vendor lock-in.
+* The application is primarily a file manager and editor for `.txt` and `.md` documents.
+
+The application should be distributed as a standalone Windows executable and built using C# and WPF.
+
+---
+
+# Core Philosophy
+
+The filesystem is the source of truth.
+
+Example workspace:
+
+```text
+Notes/
+├── Work/
+│   ├── Meeting Notes.md
+│   ├── Sprint Plan.md
+│
+├── Personal/
+│   ├── Journal.md
+│   ├── Shopping List.txt
+│
+└── Learning/
+    ├── Networking.md
+    └── Rust Notes.md
+```
+
+The application should never hide files inside a proprietary database.
+
+Users should be able to close the application, open the workspace folder in Windows Explorer, and see all notes as ordinary files.
+
+---
+
+# Supported File Types
+
+## Plain Text
+
+Extension:
+
+```text
+.txt
+```
+
+Features:
+
+* Edit text
+* Save text
+* Search text
+
+No formatting support required.
+
+---
+
+## Markdown
+
+Extension:
+
+```text
+.md
+```
+
+Features:
+
+* Edit markdown
+* Optional preview pane
+* Syntax highlighting if practical
+
+No advanced Obsidian-style features required.
+
+---
+
+# First Launch Experience
+
+When the application starts for the first time:
+
+Show a welcome screen.
+
+Options:
+
+1. Open Existing Workspace
+2. Create New Workspace
+
+---
+
+# Workspace Concept
+
+A workspace is simply a folder selected by the user.
+
+Examples:
+
+```text
+D:\Notes
+```
+
+```text
+C:\Users\User\Documents\KnowledgeBase
+```
+
+The application scans the selected folder and builds the navigation tree.
+
+The selected workspace path should be remembered between launches.
+
+---
+
+# Startup Experience
+
+If a workspace already exists:
+
+Show a startup dashboard.
+
+Sections:
+
+## Recent Documents
+
+List recently opened files.
+
+Display:
+
+* file name
+* category
+* last opened date
+
+Example:
+
+```text
+Recent Documents
+
+Meeting Notes.md
+Shopping List.txt
+API Design.md
+```
+
+---
+
+## Actions
+
+Buttons:
+
+```text
+Open Workspace
+Change Workspace
+Create New Note
+Create New Category
+```
+
+---
+
+# Main Application Layout
+
+The main window should have three logical sections.
+
+```text
++------------------------------------------------------+
+| Toolbar                                               |
++------------------------------------------------------+
+| Folder Tree | Editor                                 |
+|             |                                        |
+| Categories  | Document Content                       |
+| and Notes   |                                        |
+|             |                                        |
++------------------------------------------------------+
+| Status Bar                                            |
++------------------------------------------------------+
+```
+
+---
+
+# Folder Tree
+
+The left panel displays the workspace hierarchy.
+
+Example:
+
+```text
+Work
+ ├─ Sprint Plan.md
+ ├─ Meeting Notes.md
+
+Personal
+ ├─ Journal.md
+ ├─ Shopping List.txt
+
+Learning
+ ├─ Rust Notes.md
+```
+
+Requirements:
+
+* Expand/collapse folders
+* Select files
+* Context menu support
+
+---
+
+# Category Management
+
+Categories are folders.
+
+Users can:
+
+* Create category
+* Rename category
+* Delete category
+* Move category
+
+Nested categories must be supported.
+
+Example:
+
+```text
+Work
+ ├─ Clients
+ │   ├─ Client A.md
+ │   └─ Client B.md
+```
+
+---
+
+# Document Management
+
+Users can:
+
+* Create markdown document
+* Create text document
+* Rename document
+* Delete document
+* Duplicate document
+* Move document
+
+Creation flow:
+
+Right click folder
+
+Options:
+
+```text
+New Markdown Document
+New Text Document
+```
+
+---
+
+# Editor
+
+The right panel contains the document editor.
+
+Requirements:
+
+* Open selected file
+* Edit content
+* Autosave changes
+* Undo / Redo
+* Copy / Paste
+* Select All
+
+---
+
+# Autosave
+
+Autosave should be automatic.
+
+Behavior:
+
+* Save 500ms after user stops typing
+* Save immediately when changing documents
+* Save immediately when closing application
+
+No manual Save button required.
+
+---
+
+# Search
+
+Global search across workspace.
+
+Search targets:
+
+* file names
+* file contents
+
+Example:
+
+Search: API
+
+Results:
+
+```text
+Work/API Design.md
+Learning/REST APIs.md
+```
+
+Clicking a result opens the file.
+
+---
+
+# Recent Documents
+
+Track recently opened documents.
+
+Store:
+
+* file path
+* last opened timestamp
+
+Display on startup dashboard.
+
+Limit:
+
+20 recent documents.
+
+---
+
+# Settings
+
+Store settings in JSON.
+
+Example:
+
+```json
+{
+  "workspacePath": "D:/Notes",
+  "theme": "light",
+  "recentDocuments": []
+}
+```
+
+Settings should be stored separately from note files.
+
+---
+
+# Error Handling
+
+Handle:
+
+* Missing workspace folder
+* Deleted files
+* Renamed files
+* Permission errors
+* Invalid file names
+
+Display user-friendly messages.
+
+Application must never crash due to a missing note.
+
+---
+
+# Non-Functional Requirements
+
+Startup Time:
+
+* Under 2 seconds for normal workspaces
+
+Memory Usage:
+
+* Lightweight
+* No browser runtime
+
+Storage:
+
+* Filesystem based
+
+Offline:
+
+* Fully functional offline
+
+Dependencies:
+
+* Minimize third-party dependencies
+
+Distribution:
+
+* Single Windows executable
+
+---
+
+# Out of Scope (Version 1)
+
+Do not implement:
+
+* Cloud sync
+* User accounts
+* Collaboration
+* Rich text editing
+* Images inside notes
+* Attachments
+* Tags
+* Backlinks
+* AI features
+* Plugins
+* Encryption
+* Database storage
+* Web application support
+
+Keep Version 1 focused on fast, reliable management of text and markdown files organized in folders.
+
+---
+
+# Suggested Technical Stack
+
+Language:
+C#
+
+Framework:
+WPF
+
+Architecture:
+MVVM
+
+Editor:
+AvalonEdit
+
+Settings:
+JSON
+
+Storage:
+Filesystem
+
+Target:
+Windows 10 and Windows 11
+
+Deliver a clean, maintainable architecture suitable for future expansion while keeping Version 1 intentionally simple.
