@@ -45,17 +45,15 @@ public sealed class MarkdownColorizer : DocumentColorizingTransformer
         var muted = Brush("MutedTextBrush", Brushes.Gray);
         var accent = Brush("AccentBrush", Brushes.SteelBlue);
 
-        // Fenced code blocks (``` … ```), spanning multiple lines.
-        if (text.TrimStart().StartsWith("```", StringComparison.Ordinal) || IsInsideFence(line))
+        // Fenced code blocks (``` … ```): monospace + code text colour. The full-width block fill is
+        // painted by CodeBlockBackgroundRenderer.
+        if (MarkdownFences.IsInCodeBlock(CurrentContext.Document, line))
         {
-            var codeBg = Brush("CodeBackgroundBrush", null);
             var codeText = Brush("CodeTextBrush", muted);
             ChangeLinePart(start, line.EndOffset, e =>
             {
                 ApplyMonospace(e);
                 e.TextRunProperties.SetForegroundBrush(codeText);
-                if (codeBg is not null)
-                    e.TextRunProperties.SetBackgroundBrush(codeBg);
             });
             return;
         }
@@ -258,19 +256,6 @@ public sealed class MarkdownColorizer : DocumentColorizingTransformer
     }
 
     // ---- helpers ----
-
-    private bool IsInsideFence(DocumentLine line)
-    {
-        var doc = CurrentContext.Document;
-        var fences = 0;
-        for (var n = 1; n < line.LineNumber; n++)
-        {
-            var text = doc.GetText(doc.GetLineByNumber(n));
-            if (text.TrimStart().StartsWith("```", StringComparison.Ordinal))
-                fences++;
-        }
-        return fences % 2 == 1;
-    }
 
     private static bool LooksLikeTableRow(string text) => text.Count(c => c == '|') >= 2;
 

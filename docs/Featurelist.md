@@ -2,8 +2,14 @@
 ---------- TODO ------------
 ----------------------------
 
-- markdown preview mode: markdown preview mode will render the formatting but the content will still be editable
 - / commands in md and txt versions. / commands and utilities are different for md and txt versions. for md, the options will be to insert a table, ol list, ul list, info box, warning box, check list, quotation etc. for txt the options would include inserting predefined templates of text for common text decorations. insert emojis options will be available to both file types
+- commands ideas:
+    - format table so that it aligns with the text inside
+    - insert element (any markdown element)
+        - if table then ask dimensions
+        - if image then ask image location
+
+- pressing enter after a list line item, it should create a new empty list item. if we press  enter on an empty line item, the empty line item is removed and we are left with and empty line, or the nested upper line item by removing tabs. (is this a tall order?)
 - color theme and other settings should be customizable via a json file
 
 - app icon and branding
@@ -67,4 +73,4 @@
     - font selection (from locally available fonts)
     - etc
 - the side bar icons should be customizable by replacing svgs in a folder
-
+- markdown preview mode: markdown preview mode will render the formatting but the content will still be editable

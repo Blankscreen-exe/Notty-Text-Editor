@@ -14,6 +14,7 @@ public partial class MainWindow : Window
     private MainViewModel? _vm;
     private readonly MarkdownColorizer _markdownColorizer;
     private readonly AlertBackgroundRenderer _alertRenderer = new();
+    private readonly CodeBlockBackgroundRenderer _codeRenderer = new();
 
     // Guards the two-way bridge between AvalonEdit and EditorViewModel.Text
     // so a programmatic load does not get echoed back as a user edit.
@@ -76,6 +77,11 @@ public partial class MainWindow : Window
             transformers.Remove(_markdownColorizer);
 
         var renderers = Editor.TextArea.TextView.BackgroundRenderers;
+        if (active && !renderers.Contains(_codeRenderer))
+            renderers.Add(_codeRenderer);
+        else if (!active && renderers.Contains(_codeRenderer))
+            renderers.Remove(_codeRenderer);
+
         if (active && !renderers.Contains(_alertRenderer))
             renderers.Add(_alertRenderer);
         else if (!active && renderers.Contains(_alertRenderer))
