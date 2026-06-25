@@ -1,19 +1,39 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace Notty.App.Editor;
 
 /// <summary>
-/// One "/" command: a keyword to filter on, a title/description shown in the popup, and the snippet
-/// it inserts. The snippet may contain <see cref="CaretMarker"/> to mark where the caret lands.
+/// Prompts an interactive slash command can use to gather input. Implemented in the app layer over
+/// the dialog service, so this editor code stays free of WPF dialog dependencies.
 /// </summary>
-public sealed record SlashCommand(string Name, string Title, string Description, string Template);
+public interface ISlashPrompts
+{
+    /// <summary>Asks for a table size. Returns null if cancelled.</summary>
+    (int Rows, int Cols)? AskTableSize();
+
+    /// <summary>Asks for an image, returning a markdown-ready path. Returns null if cancelled.</summary>
+    string? AskImagePath();
+}
+
+/// <summary>
+/// One "/" command. Most insert a static <see cref="Template"/>; an interactive command instead
+/// supplies <see cref="Interactive"/>, which prompts the user and builds the snippet (or returns
+/// null to cancel). A template/built snippet may contain <see cref="SlashCommands.CaretMarker"/>.
+/// </summary>
+public sealed record SlashCommand(
+    string Name,
+    string Title,
+    string Description,
+    string? Template = null,
+    Func<ISlashPrompts, (string Text, int CaretOffset)?>? Interactive = null);
 
 /// <summary>The catalog of slash commands, split by file type (markdown vs plain text).</summary>
 public static class SlashCommands
 {
-    /// <summary>Placeholder inside a template marking where the caret should end up after insertion.</summary>
+    /// <summary>Placeholder inside a snippet marking where the caret should end up after insertion.</summary>
     public const string CaretMarker = "%CARET%";
 
     /// <summary>Returns the command set appropriate for the given file (.md vs everything else).</summary>
@@ -23,21 +43,22 @@ public static class SlashCommands
         return ext == ".md" ? Markdown : Text;
     }
 
-    /// <summary>Splits a template into the text to insert and the caret offset within it.</summary>
-    public static (string Text, int CaretOffset) Render(SlashCommand command)
+    /// <summary>Splits a snippet into the text to insert and the caret offset within it.</summary>
+    public static (string Text, int CaretOffset) SplitCaret(string snippet)
     {
-        var idx = command.Template.IndexOf(CaretMarker, StringComparison.Ordinal);
-        if (idx < 0)
-            return (command.Template, command.Template.Length);
-
-        return (command.Template.Remove(idx, CaretMarker.Length), idx);
+        var idx = snippet.IndexOf(CaretMarker, StringComparison.Ordinal);
+        return idx < 0 ? (snippet, snippet.Length) : (snippet.Remove(idx, CaretMarker.Length), idx);
     }
+
+    /// <summary>Renders a static command's template.</summary>
+    public static (string Text, int CaretOffset) Render(SlashCommand command) =>
+        SplitCaret(command.Template ?? string.Empty);
 
     public static readonly IReadOnlyList<SlashCommand> Markdown = new[]
     {
         new SlashCommand("heading", "Heading", "Section heading", "# %CARET%"),
-        new SlashCommand("table", "Table", "Starter markdown table",
-            "| Column | Column |\n| --- | --- |\n| %CARET% |  |\n|  |  |"),
+        new SlashCommand("table", "Table", "Markdown table (choose size)", Interactive: BuildTable),
+        new SlashCommand("image", "Image", "Insert an image (choose file)", Interactive: BuildImage),
         new SlashCommand("ul", "Bulleted list", "Unordered list item", "- %CARET%"),
         new SlashCommand("ol", "Numbered list", "Ordered list item", "1. %CARET%"),
         new SlashCommand("checklist", "Checklist", "Task list item", "- [ ] %CARET%"),
@@ -65,4 +86,31 @@ public static class SlashCommands
         new SlashCommand("todo", "To-do", "Empty checkbox line", "[ ] %CARET%"),
         new SlashCommand("note", "Note label", "NOTE: prefix", "NOTE: %CARET%"),
     };
+
+    // ---- interactive builders ----
+
+    private static (string Text, int CaretOffset)? BuildTable(ISlashPrompts prompts)
+    {
+        if (prompts.AskTableSize() is not { } size)
+            return null;
+
+        var cols = Math.Clamp(size.Cols, 1, 20);
+        var rows = Math.Clamp(size.Rows, 1, 50);
+
+        // Empty cells, caret in the first header cell. Each non-first cell is "  |".
+        var header = "| %CARET% |" + string.Concat(Enumerable.Repeat("  |", cols - 1));
+        var separator = "|" + string.Concat(Enumerable.Repeat(" --- |", cols));
+        var bodyRow = "|" + string.Concat(Enumerable.Repeat("  |", cols));
+
+        var snippet = header + "\n" + separator + string.Concat(Enumerable.Repeat("\n" + bodyRow, rows));
+        return SplitCaret(snippet);
+    }
+
+    private static (string Text, int CaretOffset)? BuildImage(ISlashPrompts prompts)
+    {
+        if (prompts.AskImagePath() is not { } path)
+            return null;
+
+        return SplitCaret($"![%CARET%]({path})");
+    }
 }

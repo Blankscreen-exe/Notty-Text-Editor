@@ -10,8 +10,13 @@ namespace Notty.App.Editor;
 public sealed class SlashCommandCompletionData : ICompletionData
 {
     private readonly SlashCommand _command;
+    private readonly ISlashPrompts _prompts;
 
-    public SlashCommandCompletionData(SlashCommand command) => _command = command;
+    public SlashCommandCompletionData(SlashCommand command, ISlashPrompts prompts)
+    {
+        _command = command;
+        _prompts = prompts;
+    }
 
     public ImageSource Image => null!;
     public string Text => _command.Name;             // what the popup filters on
@@ -31,8 +36,21 @@ public sealed class SlashCommandCompletionData : ICompletionData
             length++;
         }
 
-        var (text, caret) = SlashCommands.Render(_command);
-        textArea.Document.Replace(start, length, text);
+        // Remove the "/command" text first so an interactive prompt isn't shown over stale text.
+        textArea.Document.Replace(start, length, string.Empty);
+
+        var insertion = _command.Interactive is not null
+            ? _command.Interactive(_prompts)
+            : SlashCommands.Render(_command);
+
+        if (insertion is null) // cancelled prompt: leave the trigger removed, caret in place
+        {
+            textArea.Caret.Offset = start;
+            return;
+        }
+
+        var (text, caret) = insertion.Value;
+        textArea.Document.Insert(start, text);
         textArea.Caret.Offset = start + caret;
     }
 }

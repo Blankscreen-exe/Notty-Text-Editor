@@ -6,6 +6,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using ICSharpCode.AvalonEdit.CodeCompletion;
 using Notty.App.Editor;
+using Notty.App.Services;
 using Notty.App.ViewModels;
 
 namespace Notty.App;
@@ -17,6 +18,7 @@ public partial class MainWindow : Window
     private readonly AlertBackgroundRenderer _alertRenderer = new();
     private readonly CodeBlockBackgroundRenderer _codeRenderer = new();
     private CompletionWindow? _completionWindow;
+    private readonly DialogService _dialogs = new();
 
     // Guards the two-way bridge between AvalonEdit and EditorViewModel.Text
     // so a programmatic load does not get echoed back as a user edit.
@@ -84,9 +86,11 @@ public partial class MainWindow : Window
         if (commands.Count == 0)
             return;
 
+        var prompts = new SlashPrompts(_dialogs, path);
+
         _completionWindow = new CompletionWindow(Editor.TextArea);
         foreach (var command in commands)
-            _completionWindow.CompletionList.CompletionData.Add(new SlashCommandCompletionData(command));
+            _completionWindow.CompletionList.CompletionData.Add(new SlashCommandCompletionData(command, prompts));
 
         _completionWindow.Closed += (_, _) => _completionWindow = null;
         _completionWindow.Show();

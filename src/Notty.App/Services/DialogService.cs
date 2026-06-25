@@ -30,6 +30,18 @@ public sealed class DialogService
         return path;
     }
 
+    /// <summary>Shows a file picker. Returns the selected path, or null if cancelled.</summary>
+    public string? PickFile(string title, string filter)
+    {
+        var dialog = new OpenFileDialog
+        {
+            Title = title,
+            Filter = filter,
+            CheckFileExists = true,
+        };
+        return dialog.ShowDialog() == true ? dialog.FileName : null;
+    }
+
     public void ShowError(string message) =>
         MessageBox.Show(OwnerWindow, message, "Notty", MessageBoxButton.OK, MessageBoxImage.Warning);
 
