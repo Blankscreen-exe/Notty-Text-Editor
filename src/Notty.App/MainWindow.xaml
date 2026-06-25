@@ -107,9 +107,6 @@
                 <StackPanel Orientation="Horizontal">
                     <Button Content="Change Workspace" Style="{StaticResource ToolbarButton}"
                             Command="{Binding ChangeWorkspaceCommand}" />
-                    <ToggleButton Content="Markdown Preview" Style="{StaticResource ToolbarToggle}"
-                                  IsChecked="{Binding MarkdownPreviewEnabled, Mode=TwoWay}"
-                                  ToolTip="Render markdown formatting inline (.md files, still editable)" />
                     <TextBlock Text="{Binding WorkspaceName}" VerticalAlignment="Center"
                                FontWeight="SemiBold" Foreground="{DynamicResource TextBrush}" Margin="8,0,0,0" />
                 </StackPanel>
@@ -117,8 +114,15 @@
 
             <!-- Status bar -->
             <Border DockPanel.Dock="Bottom" Background="{DynamicResource PanelBackgroundBrush}"
-                    BorderBrush="{DynamicResource BorderBrushSoft}" BorderThickness="0,1,0,0" Padding="10,4">
-                <TextBlock Text="{Binding StatusText}" Foreground="{DynamicResource MutedTextBrush}" />
+                    BorderBrush="{DynamicResource BorderBrushSoft}" BorderThickness="0,1,0,0" Padding="10,3">
+                <Grid>
+                    <TextBlock Text="{Binding StatusText}" Foreground="{DynamicResource MutedTextBrush}"
+                               VerticalAlignment="Center" />
+                    <ToggleButton Content="Preview" Style="{StaticResource StatusToggle}"
+                                  HorizontalAlignment="Right" VerticalAlignment="Center"
+                                  IsChecked="{Binding MarkdownPreviewEnabled, Mode=TwoWay}"
+                                  ToolTip="Render markdown formatting inline (.md files, still editable)" />
+                </Grid>
             </Border>
 
             <!-- Tree + editor -->

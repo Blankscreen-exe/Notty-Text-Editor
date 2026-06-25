@@ -10,17 +10,18 @@
         - if image then ask image location
 - color theme and other settings should be customizable via a json file
 
-- pressing enter after a list line item, it should create a new empty list item. if we press  enter on an empty line item, the empty line item is removed and we are left with and empty line, or the nested upper line item by removing tabs. (is this a tall order?)
 
 - app icon and branding
 - toolbar for markdown or text file formatting
 - rich text format support with toolbar for colors and other stuff which rich text has
 - ctrl + and ctrl - to zoom in and out the whole app
 - README
-- ctrl + S shortcut for saving.
+- ctrl + S shortcut for saving. status bar should show saving status.
 - auto saving as an optional feature in settings
+- for image or link, in preview mode the md file should show embed or minimized image
 - double click folder on sidebar to toggle expand them
-- hitting down button while in middle of a text line should move the cursor to end of the line (if there is no more lines after that) this is quite common in text editors.
+- theme highlight of sidebar items, sometimesmake highlight blue on blue text and white on white text. this is a theming issue.
+- put the preview markdown button in the bottom right status bar as a mini aesthetic clickable object
 
 ## Navigation & search (biggest gap right now)
 - Global search across all notes — search content in every file in the workspace, not just the open one. With match preview snippets.
@@ -74,3 +75,5 @@
     - etc
 - the side bar icons should be customizable by replacing svgs in a folder
 - markdown preview mode: markdown preview mode will render the formatting but the content will still be editable
+- pressing enter after a list line item, it should create a new empty list item. if we press  enter on an empty line item, the empty line item is removed and we are left with and empty line, or the nested upper line item by removing tabs. (is this a tall order?)
+- hitting down button while in middle of a text line should move the cursor to end of the line (if there is no more lines after that) this is quite common in text editors.
