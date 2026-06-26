@@ -36,6 +36,11 @@ Notes/
 └─ Learning/
    └─ Networking.md
 ```
+---
+
+## Preview
+
+![preview](docs/images/preview.png)
 
 ---
 
