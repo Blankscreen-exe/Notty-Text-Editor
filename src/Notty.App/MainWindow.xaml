@@ -28,6 +28,8 @@
         <Grid Visibility="{Binding HasWorkspace, Converter={StaticResource InvBoolToVis}}"
               Background="{DynamicResource PanelBackgroundBrush}">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="380">
+                <svg:SvgViewbox Source="pack://application:,,,/Assets/Branding/notty-logo.svg"
+                                Width="84" Height="84" HorizontalAlignment="Center" Margin="0,0,0,16" />
                 <TextBlock Text="Notty" FontSize="34" FontWeight="Bold"
                            Foreground="{DynamicResource TextBrush}" HorizontalAlignment="Center" />
                 <TextBlock Text="File-based notes. Your folders are the database."

@@ -64,5 +64,12 @@ public sealed class DialogService
         window.ShowDialog();
     }
 
+    /// <summary>Opens the branded About window modally.</summary>
+    public void ShowAbout()
+    {
+        var window = new AboutWindow { Owner = OwnerWindow };
+        window.ShowDialog();
+    }
+
     private static Window OwnerWindow => Application.Current.MainWindow;
 }

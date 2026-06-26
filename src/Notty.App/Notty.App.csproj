@@ -9,9 +9,10 @@
     <PackageReference Include="SharpVectors.Wpf" Version="1.8.5" />
   </ItemGroup>
 
-  <!-- Icons: drop a replacement .svg into Assets\Icons and rebuild to change an icon. -->
+  <!-- Icons: drop a replacement .svg into Assets\Icons and rebuild to change an icon.
+       Branding SVGs (logo) live under Assets\Branding and are rendered in-app via SharpVectors. -->
   <ItemGroup>
-    <Resource Include="Assets\Icons\**\*.svg" />
+    <Resource Include="Assets\**\*.svg" />
   </ItemGroup>
 
   <PropertyGroup>
@@ -20,6 +21,19 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+
+    <!-- Executable / window / taskbar icon -->
+    <ApplicationIcon>Assets\Branding\notty.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <!-- Branding / assembly metadata (shown in the .exe's file properties and the About box) -->
+  <PropertyGroup>
+    <Product>Notty</Product>
+    <AssemblyTitle>Notty</AssemblyTitle>
+    <Company>Notty</Company>
+    <Authors>Notty</Authors>
+    <Description>File-based notes manager — your folders are the database.</Description>
+    <Version>1.0.0</Version>
   </PropertyGroup>
 
 </Project>

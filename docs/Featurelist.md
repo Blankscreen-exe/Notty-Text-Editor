@@ -16,8 +16,6 @@
 - rich text format support with toolbar for colors and other stuff which rich text has
 - ctrl + and ctrl - to zoom in and out the whole app
 - README
-- ctrl + S shortcut for saving. status bar should show saving status.
-- auto saving as an optional feature in settings
 - for image or link, in preview mode the md file should show embed or minimized image
 - double click folder on sidebar to toggle expand them
 - theme highlight of sidebar items, sometimesmake highlight blue on blue text and white on white text. this is a theming issue.
@@ -77,3 +75,5 @@
 - markdown preview mode: markdown preview mode will render the formatting but the content will still be editable
 - pressing enter after a list line item, it should create a new empty list item. if we press  enter on an empty line item, the empty line item is removed and we are left with and empty line, or the nested upper line item by removing tabs. (is this a tall order?)
 - hitting down button while in middle of a text line should move the cursor to end of the line (if there is no more lines after that) this is quite common in text editors.
+- ctrl + S shortcut for saving. status bar should show saving status.
+- auto saving as an optional feature in settings

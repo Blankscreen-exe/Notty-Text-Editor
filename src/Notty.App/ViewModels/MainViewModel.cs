@@ -461,11 +461,7 @@ public sealed class MainViewModel : ObservableObject
         StatusText = _settings.ShowUnsupportedFiles ? "Showing all file types" : "Showing notes only";
     }
 
-    private void ShowAbout() =>
-        _dialogs.ShowInfo(
-            "Notty\nA file-based notes manager.\n\n" +
-            "Your notes are plain .md and .txt files on disk — no database, no lock-in.",
-            "About Notty");
+    private void ShowAbout() => _dialogs.ShowAbout();
 
     // ---- Tree building ------------------------------------------------------
 
