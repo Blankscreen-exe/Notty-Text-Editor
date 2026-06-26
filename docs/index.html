@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notty — file-based notes for Windows</title>
+  <meta name="description" content="Notty is a fast, file-based notes manager for Windows. Your notes are plain .md and .txt files on disk — no database, no cloud, no lock-in.">
+
+  <!-- Open Graph / social preview -->
+  <meta property="og:title" content="Notty — file-based notes for Windows">
+  <meta property="og:description" content="Plain .md and .txt files on disk. No database, no cloud, no lock-in.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://blankscreen-exe.github.io/Notty-Text-Editor/images/preview.png">
+  <link rel="icon" type="image/png" href="images/notty-256.png">
+
+  <style>
+    :root {
+      --accent: #2563eb;
+      --accent-2: #3b82f6;
+      --ink: #131822;
+      --muted: #5b6675;
+      --bg: #ffffff;
+      --bg-soft: #f5f7fb;
+      --border: #e6e9f0;
+      --radius: 14px;
+      --maxw: 1080px;
+      --font: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --mono: "Cascadia Code", "Consolas", ui-monospace, monospace;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: var(--font);
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    code { font-family: var(--mono); font-size: .88em; background: #eef1f7; padding: 2px 6px; border-radius: 5px; color: #1f3a8a; }
+    kbd { font-family: var(--font); font-size: .8em; background: #fff; border: 1px solid var(--border); border-bottom-width: 2px; border-radius: 6px; padding: 1px 7px; color: var(--ink); }
+    .card code, .band code { background: #eef1f7; }
+
+    .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
+
+    /* ---------- nav ---------- */
+    nav {
+      position: sticky; top: 0; z-index: 10;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: saturate(180%) blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-inner { display: flex; align-items: center; gap: 12px; height: 60px; }
+    .nav-brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; }
+    .nav-brand img { width: 28px; height: 28px; border-radius: 7px; }
+    .nav-links { margin-left: auto; display: flex; align-items: center; gap: 22px; }
+    .nav-links a { color: var(--ink); font-weight: 500; font-size: 15px; }
+    .nav-links .gh {
+      background: var(--ink); color: #fff; padding: 8px 16px; border-radius: 8px;
+    }
+    .nav-links .gh:hover { text-decoration: none; opacity: .9; }
+
+    /* ---------- hero ---------- */
+    .hero {
+      position: relative; overflow: hidden;
+      background: radial-gradient(1200px 500px at 50% -10%, #1f3a8a55, transparent),
+                  linear-gradient(180deg, #0b1220, #131c2e);
+      color: #fff; text-align: center;
+      padding: 84px 0 96px;
+    }
+    .hero .logo {
+      width: 96px; height: 96px; border-radius: 24px;
+      box-shadow: 0 18px 50px -12px #2563ebaa;
+    }
+    .hero h1 { font-size: clamp(40px, 6vw, 64px); margin: 22px 0 8px; letter-spacing: -1.5px; }
+    .hero p.tag { font-size: clamp(17px, 2.4vw, 22px); color: #c7d2e6; margin: 0 auto 8px; max-width: 620px; }
+    .hero p.sub { font-size: 14px; color: #8b9ab5; letter-spacing: .5px; text-transform: uppercase; margin-top: 4px; }
+    .cta { display: flex; gap: 14px; justify-content: center; margin-top: 32px; flex-wrap: wrap; }
+    .btn {
+      display: inline-block; padding: 13px 26px; border-radius: 10px;
+      font-weight: 600; font-size: 16px; cursor: pointer; transition: transform .08s ease, opacity .15s ease;
+    }
+    .btn:hover { text-decoration: none; transform: translateY(-1px); }
+    .btn-primary { background: linear-gradient(180deg, var(--accent-2), var(--accent)); color: #fff; box-shadow: 0 10px 24px -8px #2563ebcc; }
+    .btn-ghost { background: #ffffff14; color: #fff; border: 1px solid #ffffff2e; }
+
+    /* ---------- screenshot ---------- */
+    .shot { margin: -64px auto 0; max-width: 940px; padding: 0 24px; position: relative; z-index: 2; }
+    .window {
+      border-radius: 12px; overflow: hidden; border: 1px solid var(--border);
+      box-shadow: 0 30px 80px -24px #0b122066; background: #fff;
+    }
+    .window-bar { height: 34px; background: #f2f4f8; display: flex; align-items: center; gap: 8px; padding: 0 14px; border-bottom: 1px solid var(--border); }
+    .dot { width: 11px; height: 11px; border-radius: 50%; }
+    .dot.r { background: #ff5f57; } .dot.y { background: #febc2e; } .dot.g { background: #28c840; }
+    .window img { display: block; width: 100%; }
+
+    /* ---------- sections ---------- */
+    section { padding: 88px 0; }
+    .section-head { text-align: center; max-width: 640px; margin: 0 auto 52px; }
+    .section-head h2 { font-size: clamp(28px, 4vw, 40px); margin: 0 0 12px; letter-spacing: -1px; }
+    .section-head p { color: var(--muted); font-size: 18px; margin: 0; }
+
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+    .card {
+      background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 26px; transition: border-color .15s ease, box-shadow .15s ease, transform .15s ease;
+    }
+    .card:hover { border-color: #cdd6e6; box-shadow: 0 14px 34px -18px #0b122033; transform: translateY(-2px); }
+    .card .ico { width: 44px; height: 44px; border-radius: 11px; display: grid; place-items: center; font-size: 22px; margin-bottom: 16px;
+                 background: linear-gradient(180deg, var(--accent-2), var(--accent)); }
+    .card h3 { margin: 0 0 8px; font-size: 19px; }
+    .card p { margin: 0; color: var(--muted); font-size: 15px; }
+
+    /* ---------- philosophy band ---------- */
+    .band { background: var(--bg-soft); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .band .row { display: grid; grid-template-columns: 1.1fr 1fr; gap: 48px; align-items: center; }
+    .band h2 { font-size: clamp(26px, 3.6vw, 36px); margin: 0 0 16px; letter-spacing: -1px; }
+    .band p { color: var(--muted); font-size: 17px; margin: 0 0 14px; }
+    .pills { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+    .pill { background: #fff; border: 1px solid var(--border); border-radius: 999px; padding: 7px 15px; font-size: 14px; font-weight: 600; color: var(--ink); }
+    pre {
+      background: #0b1220; color: #d6deeb; border-radius: 12px; padding: 20px 22px;
+      font-family: var(--mono); font-size: 13.5px; line-height: 1.7; overflow-x: auto; margin: 0;
+      border: 1px solid #1e2a40;
+    }
+    pre .c { color: #6b7c99; } pre .k { color: #7aa2f7; }
+
+    /* ---------- get started ---------- */
+    .start .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
+    .start ol { margin: 0; padding-left: 20px; color: var(--muted); font-size: 16px; }
+    .start ol li { margin-bottom: 12px; }
+    .start ol strong { color: var(--ink); }
+
+    /* ---------- footer ---------- */
+    footer { background: #0b1220; color: #8b9ab5; padding: 48px 0; text-align: center; }
+    footer .fbrand { display: flex; align-items: center; justify-content: center; gap: 10px; color: #fff; font-weight: 700; font-size: 18px; margin-bottom: 12px; }
+    footer .fbrand img { width: 26px; height: 26px; border-radius: 7px; }
+    footer a { color: #c7d2e6; }
+    footer .flinks { display: flex; gap: 22px; justify-content: center; margin: 12px 0 20px; flex-wrap: wrap; }
+    footer small { color: #5b6a85; }
+
+    @media (max-width: 760px) {
+      .band .row, .start .grid2 { grid-template-columns: 1fr; }
+      .nav-links a:not(.gh) { display: none; }
+      section { padding: 64px 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="wrap nav-inner">
+      <span class="nav-brand"><img src="images/notty-logo.svg" alt="Notty logo">Notty</span>
+      <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#philosophy">Philosophy</a>
+        <a href="#get-started">Get started</a>
+        <a class="gh" href="https://github.com/Blankscreen-exe/Notty-Text-Editor">GitHub</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="wrap">
+      <img class="logo" src="images/notty-logo.svg" alt="Notty">
+      <h1>Notty</h1>
+      <p class="tag">A fast, file-based notes manager for Windows. Your notes are plain files on disk — your folders are the database.</p>
+      <p class="sub">Windows 10/11 · .NET 8 · WPF</p>
+      <div class="cta">
+        <a class="btn btn-primary" href="https://github.com/Blankscreen-exe/Notty-Text-Editor">View on GitHub</a>
+        <a class="btn btn-ghost" href="#get-started">Get started</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="shot">
+    <div class="window">
+      <div class="window-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+      <img src="images/preview.png" alt="Notty editing a Markdown note with live preview and GitHub alert callouts">
+    </div>
+  </div>
+
+  <section id="features">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Everything you need to take notes</h2>
+        <p>A focused editor that gets out of your way — and never traps your notes in a proprietary format.</p>
+      </div>
+      <div class="grid">
+        <div class="card">
+          <div class="ico">📁</div>
+          <h3>Your folders are the database</h3>
+          <p>Notes are ordinary <code>.md</code> and <code>.txt</code> files; categories are folders. No database, no cloud, no lock-in.</p>
+        </div>
+        <div class="card">
+          <div class="ico">✍️</div>
+          <h3>Live Markdown preview</h3>
+          <p>Render GitHub-Flavored Markdown inline while staying fully editable — including <strong>NOTE / TIP / WARNING</strong> alert callouts, tables, and code blocks.</p>
+        </div>
+        <div class="card">
+          <div class="ico">⚡</div>
+          <h3>Slash commands</h3>
+          <p>Type <code>/</code> to insert tables, lists, callouts, code blocks, and images. The menu adapts to Markdown or plain-text files.</p>
+        </div>
+        <div class="card">
+          <div class="ico">↩️</div>
+          <h3>Smart list editing</h3>
+          <p><kbd>Enter</kbd> continues a list and renumbers; empty items outdent or exit. <kbd>Tab</kbd> / <kbd>Shift+Tab</kbd> nest and un-nest.</p>
+        </div>
+        <div class="card">
+          <div class="ico">💾</div>
+          <h3>Auto-save with status</h3>
+          <p>Optional auto-save writes shortly after you stop typing, with a live status indicator — <em>Saving… → Saved 2 mins ago</em>.</p>
+        </div>
+        <div class="card">
+          <div class="ico">🎨</div>
+          <h3>Themes &amp; customization</h3>
+          <p>Light and dark built in. Add your own by dropping a JSON palette into the themes folder — no rebuild. Sidebar icons are swappable SVGs.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="philosophy" class="band">
+    <div class="wrap">
+      <div class="row">
+        <div>
+          <h2>The filesystem is the source of truth</h2>
+          <p>Close Notty, open the folder in Windows Explorer, and every note is right there as a plain file. Back it up, sync it, grep it, or edit it in any other app — it's just files.</p>
+          <div class="pills">
+            <span class="pill">No database</span>
+            <span class="pill">No cloud</span>
+            <span class="pill">No account</span>
+            <span class="pill">No lock-in</span>
+            <span class="pill">Fully offline</span>
+          </div>
+        </div>
+        <pre><span class="c"># A workspace is just a folder you pick</span>
+Notes/
+├─ <span class="k">Work/</span>
+│  ├─ Meeting Notes.md
+│  └─ Sprint Plan.md
+├─ <span class="k">Personal/</span>
+│  ├─ Journal.md
+│  └─ Shopping List.txt
+└─ <span class="k">Learning/</span>
+   └─ Networking.md</pre>
+      </div>
+    </div>
+  </section>
+
+  <section id="get-started" class="start">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Get started</h2>
+        <p>Build and run from source in a couple of commands.</p>
+      </div>
+      <div class="grid2">
+        <ol>
+          <li>Install the <strong><a href="https://dotnet.microsoft.com/download/dotnet/8.0">.NET 8 SDK</a></strong> on Windows 10 or 11.</li>
+          <li><strong>Clone</strong> the repository from GitHub.</li>
+          <li><strong>Run</strong> the app with a single <code>dotnet</code> command.</li>
+          <li>On first launch, <strong>create or open a workspace</strong> folder — and start writing.</li>
+        </ol>
+        <pre><span class="c"># clone</span>
+git clone https://github.com/Blankscreen-exe/Notty-Text-Editor.git
+cd Notty-Text-Editor
+
+<span class="c"># run</span>
+dotnet run --project src/Notty.App
+
+<span class="c"># or build a release binary</span>
+dotnet build Notty.sln -c Release</pre>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <div class="fbrand"><img src="images/notty-logo.svg" alt="">Notty</div>
+      <div class="flinks">
+        <a href="https://github.com/Blankscreen-exe/Notty-Text-Editor">GitHub</a>
+        <a href="https://github.com/Blankscreen-exe/Notty-Text-Editor#readme">Documentation</a>
+        <a href="#get-started">Get started</a>
+      </div>
+      <small>Built with .NET 8 &amp; WPF · Your notes, your files.</small>
+    </div>
+  </footer>
+
+</body>
+</html>
