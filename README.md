@@ -16,6 +16,7 @@
   <a href="https://github.com/Blankscreen-exe/Notty-Text-Editor/releases/latest"><img src="https://img.shields.io/github/v/release/Blankscreen-exe/Notty-Text-Editor?sort=semver" alt="Latest release"></a>
   <img src="https://img.shields.io/badge/platform-Windows%2010%2F11-blue" alt="Platform">
   <img src="https://img.shields.io/badge/.NET-8.0-512BD4" alt=".NET 8">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-GPLv3-blue.svg" alt="License: GPL v3"></a>
 </p>
 
 ---
@@ -220,4 +221,8 @@ See [`docs/Featurelist.md`](docs/Featurelist.md) for the full list.
 
 ## License
 
-No license has been declared yet. Until one is added, all rights are reserved by the author.
+Notty is free software, licensed under the **GNU General Public License v3.0** — see [`LICENSE`](LICENSE).
+
+Copyright © 2026 Muhammad Ata
+
+You are free to use, study, share, and modify Notty. If you distribute a modified version, you must also release your source code under the GPL — so Notty and any forks of it stay open source.
