@@ -223,6 +223,6 @@ See [`docs/Featurelist.md`](docs/Featurelist.md) for the full list.
 
 Notty is free software, licensed under the **GNU General Public License v3.0** — see [`LICENSE`](LICENSE).
 
-Copyright © 2026 Muhammad Ata
+Copyright © 2026 Gray Lining
 
 You are free to use, study, share, and modify Notty. If you distribute a modified version, you must also release your source code under the GPL — so Notty and any forks of it stay open source.
