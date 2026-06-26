@@ -1,0 +1,53 @@
+name: Release
+
+# Build a self-contained, single-file Windows binary and publish it to a GitHub
+# Release whenever a version tag (v*) is pushed.
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      # Self-contained + single file => one .exe, no .NET install needed on the user's machine.
+      # NOTE: do not enable PublishTrimmed — trimming is unsupported for WPF and breaks runtime
+      # reflection (e.g. SharpVectors SVG rendering).
+      - name: Publish
+        run: >
+          dotnet publish src/Notty.App/Notty.App.csproj
+          -c Release -r win-x64 --self-contained true
+          -p:PublishSingleFile=true
+          -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:PublishReadyToRun=true
+          -p:DebugType=none -p:DebugSymbols=false
+          -o publish
+
+      - name: Package
+        shell: pwsh
+        run: |
+          Copy-Item publish/Notty.App.exe Notty.exe
+          Compress-Archive -Path Notty.exe -DestinationPath "Notty-${{ github.ref_name }}-win-x64.zip" -Force
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Notty ${{ github.ref_name }}
+          files: |
+            Notty.exe
+            Notty-${{ github.ref_name }}-win-x64.zip
+          generate_release_notes: true
+          fail_on_unmatched_files: true

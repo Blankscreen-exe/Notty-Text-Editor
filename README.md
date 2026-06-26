@@ -12,6 +12,12 @@
   <strong>Windows 10/11 · .NET 8 · WPF · MVVM</strong>
 </p>
 
+<p align="center">
+  <a href="https://github.com/Blankscreen-exe/Notty-Text-Editor/releases/latest"><img src="https://img.shields.io/github/v/release/Blankscreen-exe/Notty-Text-Editor?sort=semver" alt="Latest release"></a>
+  <img src="https://img.shields.io/badge/platform-Windows%2010%2F11-blue" alt="Platform">
+  <img src="https://img.shields.io/badge/.NET-8.0-512BD4" alt=".NET 8">
+</p>
+
 ---
 
 ## Why Notty
@@ -82,7 +88,13 @@ Toggle **Preview** in the status bar to render formatting *in place* while keepi
 
 ## Getting started
 
-### Prerequisites
+### Download
+
+Grab the latest build from the [**Releases**](https://github.com/Blankscreen-exe/Notty-Text-Editor/releases/latest) page — a single self-contained `Notty.exe` that runs on Windows 10/11 (64-bit) with **no .NET install required**.
+
+### Build from source
+
+**Prerequisites**
 - Windows 10 or 11
 - [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
 
